@@ -1,0 +1,41 @@
+services:
+  web:
+    build: .
+    expose:
+      - "3000"
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: app2_development
+      DB_USER: app2
+      DB_PASSWORD: app2pass
+    depends_on:
+      - db
+    networks:
+      proxy-net:
+        aliases:
+          - app2-web
+      app2-net:
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app2_development
+      POSTGRES_USER: app2
+      POSTGRES_PASSWORD: app2pass
+    volumes:
+      - app2-db-data:/var/lib/postgresql/data
+    networks:
+      - app2-net
+    restart: unless-stopped
+
+volumes:
+  app2-db-data:
+
+networks:
+  proxy-net:
+    external: true
+    name: proxy-net
+  app2-net:
+

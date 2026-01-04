@@ -1,0 +1,43 @@
+services:
+  web:
+    # 既存が image なら image: に差し替え
+    build: .
+    expose:
+      - "3000"
+    environment:
+      # アプリ側の設定に合わせて調整してください
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: app1db
+      DB_USER: app1
+      DB_PASSWORD: app1pass
+    depends_on:
+      - db
+    networks:
+      proxy-net:
+        aliases:
+          - app1-web
+      app1-net:
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app1db
+      POSTGRES_USER: app1
+      POSTGRES_PASSWORD: app1pass
+    volumes:
+      - app1-db-data:/var/lib/postgresql/data
+    networks:
+      - app1-net
+    restart: unless-stopped
+
+volumes:
+  app1-db-data:
+
+networks:
+  proxy-net:
+    external: true
+    name: proxy-net
+  app1-net:
+
